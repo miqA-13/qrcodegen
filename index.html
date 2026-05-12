@@ -414,29 +414,49 @@ function parseSig(){
     // Exclure les lignes contenant un @ (email)
     if(l.includes('@'))continue;
 
-    // "CP 123" ou "Case postale 123" → champ NPA = "CP 123"
+    // Cas compact : "Grand-Pré 2B - CP 320" ou "Rue du Lac 4 - CP 10"
+    // Séparateur " - " entre rue et case postale sur la même ligne
+    const compactMatch=l.match(/^(.+?)\s+-\s+(?:CP|Case\s+postale)\s+(\d+)$/i);
+    if(compactMatch&&!zip){
+      if(!street)street=compactMatch[1].trim().substring(0,60);
+      zip='CP '+compactMatch[2];
+      // Ligne suivante "CH - 1000 Lausanne 16" ou "1000 Lausanne 16" → ville
+      const next=lines[i+1]||'';
+      const nextZC=next.match(/^(?:[A-Z]{2}\s*[\-\–\—]\s*)?(\d{4,5})\s+([A-ZÀ-Üa-zà-ü][a-zA-ZÀ-üà-ü\s\.\-]+?)(?:\s+\d+)?\s*$/i);
+      if(nextZC&&!city){city=nextZC[2].trim();}
+      continue;
+    }
+
+    // "CP 123" ou "Case postale 123" seul sur sa ligne → NPA
     const cpMatch=l.match(/^(?:CP|Case\s+postale)\s+(\d+)$/i);
     if(cpMatch&&!zip){
-      zip='CP '+cpMatch[1];          // ex: "CP 123"
-      // Ligne suivante "1000 Lausanne 16" → extraire juste le nom de ville
+      zip='CP '+cpMatch[1];
       const next=lines[i+1]||'';
-      const nextZC=next.match(/^\d{4,5}\s+([A-ZÀ-Üa-zà-ü][a-zA-ZÀ-üà-ü\s\-]+?)(?:\s+\d+)?$/);
-      if(nextZC&&!city){city=nextZC[1].trim();}
+      const nextZC=next.match(/^(?:[A-Z]{2}\s*[\-\–\—]\s*)?(\d{4,5})\s+([A-ZÀ-Üa-zà-ü][a-zA-ZÀ-üà-ü\s\.\-]+?)(?:\s+\d+)?\s*$/i);
+      if(nextZC&&!city){city=nextZC[2].trim();}
       continue;
     }
 
-    // "1000 Lausanne 16" ou "1200 Genève" → NPA postal + nom de ville (sans chiffre final)
-    const zc=l.match(/^(\d{4,5})\s+([A-ZÀ-Üa-zà-ü][a-zA-ZÀ-üà-ü\s\-]+?)(?:\s+\d+)?$/);
+    // "CH - 1000 Lausanne 16", "CH – 1000 Lausanne", "1000 Lausanne 16", "1000 Lausanne" → NPA + Ville
+    // Accepte : tiret court/long/demi, espaces variables, avec ou sans préfixe CH/FR/BE
+    const zc=l.match(/^(?:[A-Z]{2}\s*[\-\–\—]\s*)?(\d{4,5})\s+([A-ZÀ-Üa-zà-ü][a-zA-ZÀ-üà-ü\s\.\-]+?)(?:\s+\d+)?\s*$/i);
     if(zc&&!city){
-      if(!zip)zip=zc[1];             // ex: "1000"
-      city=zc[2].trim();             // ex: "Lausanne" (le "16" final est ignoré)
+      if(!zip)zip=zc[1];
+      city=zc[2].trim();
       continue;
     }
 
-    // Rue : mots-clés stricts — ligne ne contenant pas d'URL non plus
+    // Rue avec mot-clé explicite
     if(!street&&!l.includes('.')&&/\b(?:rue|avenue|route|chemin|boulevard|place|allée|quai|impasse|esplanade|sentier)\b/i.test(l)){
       street=l.substring(0,60);
       continue;
+    }
+
+    // Rue sans mot-clé : nom suivi d'un numéro/lettre (ex: "Grand-Pré 2B", "Bellevue 12")
+    // Exclure : lignes avec @, url, téléphone, pays, seulement si pas encore trouvé
+    if(!street&&!l.includes('.')&&!l.includes('@')&&!/suisse|switzerland|france|belgique|luxembourg/i.test(l)){
+      const streetGuess=l.match(/^([A-ZÀ-Üa-zA-ZÀ-ü][a-zA-ZÀ-ü\s\-']+?)\s+(\d+\w*)\s*$/);
+      if(streetGuess){street=(streetGuess[1]+' '+streetGuess[2]).trim().substring(0,60);}
     }
 
     // Pays
