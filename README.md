@@ -30,3 +30,7 @@ Cette page web permet de générer rapidement un **QR Code au format vCard** à 
 3. Vérification manuelle avant génération  
 4. Export en PNG haute qualité  
 5. Compatible smartphone et tous supports numériques
+
+## 🚀 Demo
+
+![Demo](./demo.gif)
