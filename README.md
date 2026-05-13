@@ -43,3 +43,11 @@ Cette page web permet de générer rapidement un **QR Code au format vCard** à 
 ## 🌐 Live Demo
 
 https://miqa-13.github.io/qrcodegen/
+
+## 🛠️ Built With
+
+- HTML
+- CSS
+- JavaScript
+- QRCode.js
+- GitHub Pages
