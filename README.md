@@ -2,9 +2,12 @@
 
 Transformez instantanément vos signatures électroniques en codes QR de contact scannables.
 
+# qrcodegen
+
 ## 🚀 Demo
 
 ![Demo](./demo.gif)
+
 
 ## 📖 Mode d’emploi
 
@@ -31,6 +34,7 @@ Cette page web permet de générer rapidement un **QR Code au format vCard** à 
    - imprimé sur un support physique (badge, carte de visite, flyer, etc.),
    - partagé numériquement.
 
+
 ## ✨ Avantages
 
 1. Rapide et simple d’utilisation  
@@ -40,9 +44,14 @@ Cette page web permet de générer rapidement un **QR Code au format vCard** à 
 5. Compatible smartphone et tous supports numériques
 
 
+## 🖼️ Screenshot
+<img width="980" height="621" alt="screenshot" src="https://github.com/user-attachments/assets/ca14ac88-e13e-4411-bcfa-c7e5e45a5ed3" />
+
+
 ## 🌐 Live Demo
 
 https://miqa-13.github.io/qrcodegen/
+
 
 ## 🛠️ Built With
 
