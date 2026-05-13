@@ -2,6 +2,10 @@
 
 Transformez instantanément vos signatures électroniques en codes QR de contact scannables.
 
+## 🚀 Demo
+
+![Demo](./demo.gif)
+
 ## 📖 Mode d’emploi
 
 Cette page web permet de générer rapidement un **QR Code au format vCard** à partir d’une **signature e-mail copiée/collée**.
@@ -35,9 +39,6 @@ Cette page web permet de générer rapidement un **QR Code au format vCard** à 
 4. Export en PNG haute qualité  
 5. Compatible smartphone et tous supports numériques
 
-## 🚀 Demo
-
-![Demo](./demo.gif)
 
 ## 🌐 Live Demo
 
