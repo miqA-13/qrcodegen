@@ -407,62 +407,56 @@ function parseSig(){
     if(/CCHE/.test(l)){org=l.substring(0,60);break;}
   }
 
-  // Adresse — détection multi-format (CP, NPA Ville, Rue)
+  // ── Adresse ──
   for(let i=0;i<lines.length;i++){
     const l=lines[i];
 
-    // Exclure les lignes contenant un @ (email)
-    if(l.includes('@'))continue;
+    // Ignorer email et URL
+    if(l.includes('@')||l.includes('http'))continue;
 
-    // Cas compact : "Grand-Pré 2B - CP 320" ou "Rue du Lac 4 - CP 10"
-    // Séparateur " - " entre rue et case postale sur la même ligne
-    const compactMatch=l.match(/^(.+?)\s+-\s+(?:CP|Case\s+postale)\s+(\d+)$/i);
+    // CAS A : "Rue du Grand-Pré 2b - CP 320"  →  rue + NPA, ligne suivante = ville
+    const compactMatch=l.match(/^(.+?)\s+-\s+(?:CP|Case\s+postale)\s+(\d+)\s*$/i);
     if(compactMatch&&!zip){
       if(!street)street=compactMatch[1].trim().substring(0,60);
       zip='CP '+compactMatch[2];
-      // Ligne suivante "CH - 1000 Lausanne 16" ou "1000 Lausanne 16" → ville
       const next=lines[i+1]||'';
-      const nextZC=next.match(/^(?:[A-Z]{2}\s*[\-\–\—]\s*)?(\d{4,5})\s+([A-ZÀ-Üa-zà-ü][a-zA-ZÀ-üà-ü\s\.\-]+?)(?:\s+\d+)?\s*$/i);
-      if(nextZC&&!city){city=nextZC[2].trim();}
+      const mNext=next.match(/^(?:[A-Z]{2}\s*[\-\u2013\u2014]\s*)?(\d{4,5}\s+.+?)\s*$/i);
+      if(mNext&&!city)city=mNext[1].trim();
       continue;
     }
 
-    // "CP 123" ou "Case postale 123" seul sur sa ligne → NPA
-    const cpMatch=l.match(/^(?:CP|Case\s+postale)\s+(\d+)$/i);
+    // CAS B : "CP 320" seul  →  NPA, ligne suivante = ville
+    const cpMatch=l.match(/^(?:CP|Case\s+postale)\s+(\d+)\s*$/i);
     if(cpMatch&&!zip){
       zip='CP '+cpMatch[1];
       const next=lines[i+1]||'';
-      const nextZC=next.match(/^(?:[A-Z]{2}\s*[\-\–\—]\s*)?(\d{4,5})\s+([A-ZÀ-Üa-zà-ü][a-zA-ZÀ-üà-ü\s\.\-]+?)(?:\s+\d+)?\s*$/i);
-      if(nextZC&&!city){city=nextZC[2].trim();}
+      const mNext=next.match(/^(?:[A-Z]{2}\s*[\-\u2013\u2014]\s*)?(\d{4,5}\s+.+?)\s*$/i);
+      if(mNext&&!city)city=mNext[1].trim();
       continue;
     }
 
-    // "CH - 1000 Lausanne 16", "CH – 1000 Lausanne", "1000 Lausanne 16", "1000 Lausanne" → NPA + Ville
-    // Accepte : tiret court/long/demi, espaces variables, avec ou sans préfixe CH/FR/BE
-    const zc=l.match(/^(?:[A-Z]{2}\s*[\-\–\—]\s*)?(\d{4,5})\s+([A-ZÀ-Üa-zà-ü][a-zA-ZÀ-üà-ü\s\.\-]+?)(?:\s+\d+)?\s*$/i);
-    if(zc&&!city){
-      if(!zip)zip=zc[1];
-      city=zc[2].trim();
+    // CAS C : "CH - 1000 Lausanne 16"  ou  "1000 Lausanne 16"  →  ville complète
+    const zcMatch=l.match(/^(?:[A-Z]{2}\s*[\-\u2013\u2014]\s*)?(\d{4,5}\s+.+?)\s*$/i);
+    if(zcMatch&&!city){
+      city=zcMatch[1].trim();   // ex: "1000 Lausanne 16"
       continue;
     }
 
-    // Rue avec mot-clé explicite
-    if(!street&&!l.includes('.')&&/\b(?:rue|avenue|route|chemin|boulevard|place|allée|quai|impasse|esplanade|sentier)\b/i.test(l)){
+    // CAS D : rue avec mot-clé
+    if(!street&&/\b(?:rue|avenue|route|chemin|boulevard|place|allée|quai|impasse|esplanade|sentier)\b/i.test(l)){
       street=l.substring(0,60);
       continue;
     }
 
-    // Rue sans mot-clé : nom suivi d'un numéro/lettre (ex: "Grand-Pré 2B", "Bellevue 12")
-    // Exclure : lignes avec @, url, téléphone, pays, seulement si pas encore trouvé
+    // CAS E : rue sans mot-clé "Grand-Pré 2B", "Bellevue 12"
     if(!street&&!l.includes('.')&&!l.includes('@')&&!/suisse|switzerland|france|belgique|luxembourg/i.test(l)){
-      const streetGuess=l.match(/^([A-ZÀ-Üa-zA-ZÀ-ü][a-zA-ZÀ-ü\s\-']+?)\s+(\d+\w*)\s*$/);
-      if(streetGuess){street=(streetGuess[1]+' '+streetGuess[2]).trim().substring(0,60);}
+      const sg=l.match(/^([A-ZÀ-Üa-zà-ü][a-zA-ZÀ-üà-ü\s\-\']+?)\s+(\d+[A-Za-z]?)\s*$/);
+      if(sg)street=(sg[1]+' '+sg[2]).trim().substring(0,60);
     }
 
-    // Pays
-    if(!country&&/suisse|switzerland|france|belgique|luxembourg/i.test(l)){
+    // CAS F : pays
+    if(!country&&/suisse|switzerland|france|belgique|luxembourg/i.test(l))
       country=l.replace(/^[,\s]+/,'').substring(0,30);
-    }
   }
 
   setF('f_fname',fname);setF('f_lname',lname);setF('f_title',jobtitle);setF('f_org',org);
