@@ -26,12 +26,12 @@ Cette page web permet de générer rapidement un **QR Code au format vCard** à 
 4. **Générez votre QR Code**  
    Une fois les données validées, cliquez sur le bouton de génération.
 
-5. **Téléchargez le QR Code en PNG**  
-   Le QR Code est exporté au format **PNG**, prêt à être :
-   - ajouté comme **vCard** sur smartphone,
-   - imprimé sur un support physique (badge, carte de visite, flyer, etc.),
-   - partagé numériquement.
+5. **Export du QR Code en PNG**<br>
+   Le QR Code est généré au format PNG, ce qui permet de :
 
+   - l’importer facilement comme vCard sur un smartphone
+   - l’imprimer sur des supports physiques (badge, carte de visite, flyer, etc.)
+   - le partager rapidement en version numérique
 
 ## ✨ Avantages
 
