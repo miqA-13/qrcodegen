@@ -2,7 +2,7 @@
 
 Transformez instantanément vos signatures électroniques en codes QR de contact scannables.
 
-# qrcodegen
+# vcard-qr-generator
 
 ## 🚀 Demo
 
