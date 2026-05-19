@@ -48,7 +48,7 @@ Cette page web permet de générer rapidement un **QR Code au format vCard** à 
 
 ## 🌐 Live Demo
 
-https://miqa-13.github.io/qrcodegen/
+https://miqa-13.github.io/sign2qr/
 
 
 ## 🛠️ Built With
